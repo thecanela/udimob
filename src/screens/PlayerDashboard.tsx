@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { usePlayer } from '../hooks/usePlayer'
-import type { Player, PlayerProperty, Transaction } from '../types'
+import type { Player, PlayerProperty } from '../types'
 
 export default function PlayerDashboard() {
   const navigate = useNavigate()
@@ -20,7 +20,6 @@ export default function PlayerDashboard() {
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [roomCode, setRoomCode] = useState('')
   const [copied, setCopied] = useState(false)
-  const [history, setHistory] = useState<Transaction[]>([])
 
   useEffect(() => {
     if (!roomId) return
@@ -46,8 +45,7 @@ export default function PlayerDashboard() {
       const { data: pp } = await supabase.from('player_properties').select('*, property:property_id(*)').eq('player_id', playerId)
       if (pp) setProperties(pp)
     }
-    const { data: t } = await supabase.from('transactions').select().eq('room_id', roomId).order('created_at', { ascending: false }).limit(20)
-    if (t) setHistory(t)
+    await supabase.from('transactions').select().eq('room_id', roomId).order('created_at', { ascending: false }).limit(20)
   }
 
   const transfer = async () => {
@@ -106,6 +104,7 @@ export default function PlayerDashboard() {
           <p style={{ color: 'var(--muted)', fontSize: 14 }}>Nenhuma propriedade ainda</p>
         ) : properties.map(pp => {
           const prop = pp.property
+          if (!prop) return null
           const rentMap: Record<string, number> = {
             base: prop.rent_base,
             full_set: prop.rent_full_set,
@@ -115,13 +114,13 @@ export default function PlayerDashboard() {
             '4': prop.rent_4_houses,
             hotel: prop.rent_hotel,
           }
-          const rentByType = !prop ? 0 : (rentMap[pp.rent_type] ?? prop.rent_base)
+          const rentByType = rentMap[pp.rent_type] ?? prop.rent_base
           return (
             <div key={pp.id} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
                  onClick={() => navigate(`/jogo/${roomId}/minha-propriedade/${pp.id}?playerId=${player.id}`)}>
-              <div style={{ width: 4, height: 36, borderRadius: 2, background: prop?.color || 'var(--primary)' }} />
+              <div style={{ width: 4, height: 36, borderRadius: 2, background: prop.color }} />
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 600 }}>{prop?.name}</p>
+                <p style={{ fontSize: 14, fontWeight: 600 }}>{prop.name}</p>
                 <p style={{ fontSize: 12, color: 'var(--muted)' }}>
                   {pp.has_hotel ? '🏨 Hotel' : pp.houses > 0 ? `🏠 ${pp.houses} casa${pp.houses > 1 ? 's' : ''}` : 'Sem melhorias'}
                   {pp.is_mortgaged ? ' • 🔒 Hipotecada' : ''}

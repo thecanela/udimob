@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import type { Player, PlayerProperty, Property } from '../types'
+import type { Player, Property } from '../types'
 
 interface PlayerWithTotal extends Player {
   patrimonio: number
