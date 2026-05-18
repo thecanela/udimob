@@ -32,8 +32,9 @@ export default function RankingScreen() {
         })
       )
 
-      enriched.sort((a, b) => b.patrimonio - a.patrimonio)
-      setPlayers(enriched)
+      const active = enriched.filter(p => p.is_active).sort((a, b) => b.patrimonio - a.patrimonio)
+      const inactive = enriched.filter(p => !p.is_active)
+      setPlayers([...active, ...inactive])
     })()
   }, [roomId])
 
@@ -46,12 +47,16 @@ export default function RankingScreen() {
       <p style={{ color: 'var(--muted)' }}>Ranking dos Jogadores</p>
       <p style={{ color: 'var(--muted)', fontSize: 13 }}>Patrimônio = Saldo + Valor de hipoteca das propriedades</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
-        {players.map((p, i) => (
+        {players.map((p) => {
+          const isActive = p.is_active
+          const activeIndex = players.filter(pl => pl.is_active).indexOf(p)
+          return (
           <div key={p.id} className="card" style={{
             display: 'flex', alignItems: 'center', gap: 16,
-            borderColor: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'var(--border)',
+            opacity: isActive ? 1 : 0.45,
+            borderColor: isActive ? (activeIndex === 0 ? '#FFD700' : activeIndex === 1 ? '#C0C0C0' : activeIndex === 2 ? '#CD7F32' : 'var(--border)') : 'var(--border)',
           }}>
-            <span style={{ fontSize: 32 }}>{medals[i] || `${i + 1}º`}</span>
+            <span style={{ fontSize: 32 }}>{isActive ? (medals[activeIndex] || `${activeIndex + 1}º`) : '💤'}</span>
             <div style={{ flex: 1, textAlign: 'left' }}>
               <p style={{ fontWeight: 600 }}>{p.name}</p>
               <p style={{ color: 'var(--muted)', fontSize: 14 }}>R$ {p.balance.toLocaleString()}</p>
@@ -60,7 +65,8 @@ export default function RankingScreen() {
               </p>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
       <button className="btn btn-primary" onClick={async () => {
         if (roomId) await supabase.from('rooms').delete().eq('id', roomId)

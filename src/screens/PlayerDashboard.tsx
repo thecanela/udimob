@@ -142,7 +142,7 @@ export default function PlayerDashboard() {
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--surface)', borderRadius: '20px 20px 0 0', padding: 24 }}
                onClick={e => e.stopPropagation()}>
             <div style={{ width: 40, height: 4, background: 'var(--border)', borderRadius: 2, margin: '0 auto 20px' }} />
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>Menu do Jogo</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>Menu do Jogo</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button className="btn btn-secondary" onClick={() => navigate(`/jogo/${roomId}/loja?playerId=${player.id}`)}>
                 🏪 Loja de Propriedades
@@ -150,7 +150,7 @@ export default function PlayerDashboard() {
               <button className="btn btn-secondary" onClick={() => { setFabOpen(false); setConfirmLap(true) }}>
                 🔄 Completei uma Volta (R$ 200)
               </button>
-              <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
+              <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
               <button className="btn btn-secondary" onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/convidado/${roomCode}`); setFabOpen(false); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>
                 👥 Convidar Jogadores
               </button>
@@ -231,7 +231,6 @@ export default function PlayerDashboard() {
                 await supabase.from('player_properties').delete().eq('player_id', playerId)
                 await supabase.from('players').update({ is_active: false }).eq('id', playerId)
                 setConfirmExit(false)
-                navigate(`/jogo/${roomId}/ranking`)
               }} style={{ flex: 1 }}>
                 Sim
               </button>
