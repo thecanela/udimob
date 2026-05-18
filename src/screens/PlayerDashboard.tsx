@@ -30,6 +30,11 @@ export default function PlayerDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${roomId}` }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'player_properties', filter: `player_id=eq.${playerId}` }, loadData)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transactions', filter: `room_id=eq.${roomId}` }, loadData)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` }, (payload) => {
+        if (payload.new && 'status' in payload.new && (payload.new as any).status === 'finished') {
+          navigate(`/jogo/${roomId}/ranking`)
+        }
+      })
       .subscribe()
     return () => { supabase.removeChannel(sub) }
   }, [roomId, playerId])
@@ -38,8 +43,13 @@ export default function PlayerDashboard() {
     if (!roomId) return
     const { data: p } = await supabase.from('players').select().eq('room_id', roomId)
     if (p) setPlayers(p)
-    const { data: room } = await supabase.from('rooms').select('code').eq('id', roomId).single()
-    if (room) setRoomCode(room.code)
+    const { data: room } = await supabase.from('rooms').select('code, status').eq('id', roomId).single()
+    if (!room) return
+    setRoomCode(room.code)
+    if (room.status === 'finished') {
+      navigate(`/jogo/${roomId}/ranking`)
+      return
+    }
     if (playerId) {
       const me = p?.find(pl => pl.id === playerId)
       if (me) { setPlayer(me); setContextPlayer(me) }
@@ -157,9 +167,11 @@ export default function PlayerDashboard() {
               <button className="btn btn-secondary" onClick={() => { setFabOpen(false); setConfirmExit(true) }}>
                 Sair do Jogo
               </button>
-              <button className="btn btn-destructive" onClick={() => { setFabOpen(false); setConfirmEnd(true) }}>
-                Terminar o Jogo
-              </button>
+              {player.is_host && (
+                <button className="btn btn-destructive" onClick={() => { setFabOpen(false); setConfirmEnd(true) }}>
+                  Terminar o Jogo
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -204,6 +216,10 @@ export default function PlayerDashboard() {
               </button>
               <button className="btn btn-destructive" onClick={async () => {
                 await supabase.from('rooms').update({ status: 'finished' }).eq('id', roomId)
+                await supabase.from('transactions').insert({
+                  room_id: roomId, type: 'game_end',
+                  description: `${player.name} encerrou a partida`
+                })
                 setConfirmEnd(false)
                 navigate(`/jogo/${roomId}/ranking`)
               }} style={{ flex: 1 }}>
