@@ -28,19 +28,22 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="screen" style={{ alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
+    <div className="screen" style={{ alignItems: 'center', gap: 0, textAlign: 'center' }}>
+      <div style={{ flex: 1 }} />
       <img src="/udimob_logo.svg" alt="UdIMob" style={{ width: 240 }} />
-      <div className="input-group" style={{ width: '100%' }}>
-        <label>Seu Nome</label>
-        <input value={name} onChange={e => setName(e.target.value)} placeholder="Digite seu nome" />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
-        <button className="btn btn-primary" onClick={createRoom} disabled={loading || !name.trim()}>
-          {loading ? 'Criando...' : 'Criar Sala'}
-        </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/entrar')}>
-          Entrar em uma Sala
-        </button>
+      <div style={{ flex: 1 }} />
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div className="input-group" style={{ width: '100%' }}>
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="Digite seu nome" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
+          <button className="btn btn-primary" onClick={createRoom} disabled={loading || !name.trim()}>
+            {loading ? 'Criando...' : 'Criar Sala'}
+          </button>
+          <button className="btn btn-secondary" onClick={() => navigate('/entrar')}>
+            Entrar em uma Sala
+          </button>
+        </div>
       </div>
     </div>
   )
