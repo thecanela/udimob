@@ -144,10 +144,10 @@ export default function PlayerDashboard() {
             <div style={{ width: 40, height: 4, background: 'var(--border)', borderRadius: 2, margin: '0 auto 20px' }} />
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>Menu do Jogo</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <button className="btn btn-secondary" onClick={() => navigate(`/jogo/${roomId}/loja?playerId=${player.id}`)}>
+              <button className="btn btn-primary" onClick={() => navigate(`/jogo/${roomId}/loja?playerId=${player.id}`)}>
                 🏪 Loja de Propriedades
               </button>
-              <button className="btn btn-secondary" onClick={() => { setFabOpen(false); setConfirmLap(true) }}>
+              <button className="btn btn-primary" onClick={() => { setFabOpen(false); setConfirmLap(true) }}>
                 🔄 Completei uma Volta (R$ 200)
               </button>
               <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
