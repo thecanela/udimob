@@ -17,6 +17,7 @@ export default function OwnedPropertyMgmt() {
   const [sellTarget, setSellTarget] = useState('')
   const [selling, setSelling] = useState(false)
   const [insufficientFunds, setInsufficientFunds] = useState(false)
+  const [showBankConfirm, setShowBankConfirm] = useState(false)
 
   useEffect(() => {
     if (!playerPropertyId) return
@@ -106,13 +107,34 @@ export default function OwnedPropertyMgmt() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <button className="btn btn-destructive" onClick={sellToBank} disabled={selling}>
+        <button className="btn btn-destructive" onClick={() => setShowBankConfirm(true)} disabled={selling}>
           Vender p/ Banco (R$ {property.mortgage_value})
         </button>
         <button className="btn btn-secondary" onClick={() => setShowSellPopup(true)}>
           Vender p/ Jogador
         </button>
       </div>
+
+      {showBankConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}
+             onClick={() => setShowBankConfirm(false)}>
+          <div className="card" style={{ width: '100%', maxWidth: 320, textAlign: 'center' }}
+               onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Vender ao Banco?</h3>
+            <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 20 }}>
+              {property.name} por R$ {property.mortgage_value}
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-secondary" onClick={() => setShowBankConfirm(false)} style={{ flex: 1 }}>
+                Não
+              </button>
+              <button className="btn btn-destructive" onClick={() => { setShowBankConfirm(false); sellToBank() }} style={{ flex: 1 }}>
+                Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
         {showSellPopup && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}
