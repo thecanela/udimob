@@ -18,6 +18,7 @@ export default function PlayerDashboard() {
   const [fabOpen, setFabOpen] = useState(false)
   const [confirmLap, setConfirmLap] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
+  const [confirmExit, setConfirmExit] = useState(false)
   const [roomCode, setRoomCode] = useState('')
   const [copied, setCopied] = useState(false)
 
@@ -149,10 +150,11 @@ export default function PlayerDashboard() {
               <button className="btn btn-secondary" onClick={() => { setFabOpen(false); setConfirmLap(true) }}>
                 🔄 Completei uma Volta (R$ 200)
               </button>
+              <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               <button className="btn btn-secondary" onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/convidado/${roomCode}`); setFabOpen(false); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>
                 👥 Convidar Jogadores
               </button>
-              <button className="btn btn-secondary" onClick={() => setFabOpen(false)}>
+              <button className="btn btn-secondary" onClick={() => { setFabOpen(false); setConfirmExit(true) }}>
                 Sair do Jogo
               </button>
               <button className="btn btn-destructive" onClick={() => { setFabOpen(false); setConfirmEnd(true) }}>
@@ -203,6 +205,32 @@ export default function PlayerDashboard() {
               <button className="btn btn-destructive" onClick={async () => {
                 await supabase.from('rooms').update({ status: 'finished' }).eq('id', roomId)
                 setConfirmEnd(false)
+                navigate(`/jogo/${roomId}/ranking`)
+              }} style={{ flex: 1 }}>
+                Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmExit && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}
+             onClick={() => setConfirmExit(false)}>
+          <div className="card" style={{ width: '100%', maxWidth: 320, textAlign: 'center' }}
+               onClick={e => e.stopPropagation()}>
+            <span style={{ fontSize: 48 }}>😢</span>
+            <p style={{ fontSize: 18, fontWeight: 700, margin: '12px 0 8px' }}>Tem certeza que quer abandonar o jogo?</p>
+            <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 20 }}>Suas propriedades voltam para o banco</p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-secondary" onClick={() => setConfirmExit(false)} style={{ flex: 1 }}>
+                Não
+              </button>
+              <button className="btn btn-destructive" onClick={async () => {
+                if (!playerId || !roomId) return
+                await supabase.from('player_properties').delete().eq('player_id', playerId)
+                await supabase.from('players').update({ is_active: false }).eq('id', playerId)
+                setConfirmExit(false)
                 navigate(`/jogo/${roomId}/ranking`)
               }} style={{ flex: 1 }}>
                 Sim
