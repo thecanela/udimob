@@ -35,7 +35,7 @@ export default function LoginScreen() {
       <div style={{ flex: 1 }} />
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div className="input-group" style={{ width: '100%' }}>
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="Digite seu nome" />
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="Digite seu nome" style={{ textAlign: 'center' }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
           <button className="btn btn-primary" onClick={createRoom} disabled={loading || !name.trim()}>
@@ -46,7 +46,6 @@ export default function LoginScreen() {
           </button>
         </div>
       </div>
-      <div style={{ flex: 1 }} />
     </div>
   )
 }
