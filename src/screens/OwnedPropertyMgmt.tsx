@@ -61,11 +61,21 @@ export default function OwnedPropertyMgmt() {
 
   return (
     <div className="screen" style={{ gap: 20 }}>
-      <div className="header">
-        <button className="header-back" onClick={() => navigate(`/jogo/${roomId}?playerId=${playerId}`)}>←</button>
-        <h1>{property.name}</h1>
+      <div style={{
+        background: property.color,
+        margin: '-16px -16px 0',
+        padding: '16px 16px 24px',
+        borderRadius: '16px 16px 24px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+      }}>
+        <button className="header-back" onClick={() => navigate(`/jogo/${roomId}?playerId=${playerId}`)}
+          style={{ color: 'white', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, width: 36, height: 36, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          ←
+        </button>
+        <h1 style={{ color: 'white', margin: 0 }}>{property.name}</h1>
       </div>
-      <div style={{ width: '100%', height: 6, borderRadius: 3, background: property.color }} />
 
       <div className="card">
         <h3 style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 8 }}>Aluguel Atual</h3>
