@@ -122,7 +122,7 @@ export default function PlayerDashboard() {
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 600 }}>{prop.name}</p>
                 <p style={{ fontSize: 12, color: 'var(--muted)' }}>
-                  {pp.has_hotel ? '🏨 Hotel' : pp.houses > 0 ? `🏠 ${pp.houses} casa${pp.houses > 1 ? 's' : ''}` : 'Sem melhorias'}
+                  {pp.has_hotel ? '🏨 Hotel' : pp.houses > 0 ? `🏠 ${pp.houses} casa${pp.houses > 1 ? 's' : ''}` : ''}
                   {pp.is_mortgaged ? ' • 🔒 Hipotecada' : ''}
                 </p>
               </div>
@@ -146,7 +146,7 @@ export default function PlayerDashboard() {
               <button className="btn btn-secondary" onClick={() => navigate(`/jogo/${roomId}/loja?playerId=${player.id}`)}>
                 🏪 Loja de Propriedades
               </button>
-              <button className="btn btn-primary" onClick={() => { setFabOpen(false); setConfirmLap(true) }}>
+              <button className="btn btn-secondary" onClick={() => { setFabOpen(false); setConfirmLap(true) }}>
                 🔄 Completei uma Volta (R$ 200)
               </button>
               <button className="btn btn-secondary" onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/convidado/${roomCode}`); setFabOpen(false); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>

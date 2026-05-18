@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import type { PlayerProperty, Property, RentType } from '../types'
+import type { Player, PlayerProperty, Property, RentType } from '../types'
 
 export default function OwnedPropertyMgmt() {
   const navigate = useNavigate()
@@ -11,6 +11,12 @@ export default function OwnedPropertyMgmt() {
   const [pp, setPp] = useState<PlayerProperty | null>(null)
   const [property, setProperty] = useState<Property | null>(null)
   const [selectedRent, setSelectedRent] = useState<RentType>('base')
+  const [players, setPlayers] = useState<Player[]>([])
+  const [showSellPopup, setShowSellPopup] = useState(false)
+  const [sellPrice, setSellPrice] = useState('')
+  const [sellTarget, setSellTarget] = useState('')
+  const [selling, setSelling] = useState(false)
+  const [insufficientFunds, setInsufficientFunds] = useState(false)
 
   useEffect(() => {
     if (!playerPropertyId) return
@@ -26,6 +32,11 @@ export default function OwnedPropertyMgmt() {
       if (!prop) return
       setProperty(prop)
     })()
+    if (roomId && playerId) {
+      supabase.from('players').select().eq('room_id', roomId).neq('id', playerId).then(({ data }) => {
+        if (data) setPlayers(data)
+      })
+    }
   }, [playerPropertyId])
 
   const changeRentType = async (type: RentType) => {
@@ -86,9 +97,85 @@ export default function OwnedPropertyMgmt() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <button className="btn btn-destructive">Vender p/ Banco</button>
-        <button className="btn btn-secondary">Vender p/ Jogador</button>
+        <button className="btn btn-destructive" onClick={sellToBank} disabled={selling}>
+          Vender p/ Banco (R$ {property.mortgage_value})
+        </button>
+        <button className="btn btn-secondary" onClick={() => setShowSellPopup(true)}>
+          Vender p/ Jogador
+        </button>
       </div>
+
+        {showSellPopup && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}
+             onClick={() => setShowSellPopup(false)}>
+          <div className="card" style={{ width: '100%', maxWidth: 320 }}
+               onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Vender {property.name}</h3>
+            <div className="input-group" style={{ marginBottom: 12 }}>
+              <label>Valor da Venda</label>
+              <input type="number" value={sellPrice} onChange={e => setSellPrice(e.target.value)} placeholder="R$ 0" />
+            </div>
+            <div className="input-group" style={{ marginBottom: 20 }}>
+              <label>Jogador</label>
+              <select value={sellTarget} onChange={e => setSellTarget(e.target.value)}>
+                <option value="">Selecione...</option>
+                {players.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            {insufficientFunds && (
+              <p style={{ color: 'var(--destructive)', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>
+                Jogador não tem saldo suficiente
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-secondary" onClick={() => { setShowSellPopup(false); setInsufficientFunds(false) }} style={{ flex: 1 }}>
+                Cancelar
+              </button>
+              <button className="btn btn-primary" onClick={sellToPlayer} disabled={!sellPrice || !sellTarget || selling} style={{ flex: 1 }}>
+                {selling ? 'Vendendo...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
+
+  async function sellToBank() {
+    if (!pp || !property || !playerId || !roomId) return
+    setSelling(true)
+    const { data: p } = await supabase.from('players').select('balance').eq('id', playerId).single()
+    await supabase.from('players').update({ balance: (p?.balance || 0) + property.mortgage_value }).eq('id', playerId)
+    await supabase.from('player_properties').delete().eq('id', pp.id)
+    await supabase.from('transactions').insert({
+      room_id: roomId, to_player_id: playerId, amount: property.mortgage_value, type: 'bank',
+      description: `Venda ao banco de ${property.name}`
+    })
+    setSelling(false)
+    navigate(`/jogo/${roomId}?playerId=${playerId}`)
+  }
+
+  async function sellToPlayer() {
+    if (!pp || !property || !playerId || !roomId || !sellTarget || !sellPrice) return
+    const price = Number(sellPrice)
+    setInsufficientFunds(false)
+    const { data: buyer } = await supabase.from('players').select('balance').eq('id', sellTarget).single()
+    if (!buyer || buyer.balance < price) {
+      setInsufficientFunds(true)
+      return
+    }
+    setSelling(true)
+    const { data: seller } = await supabase.from('players').select('balance').eq('id', playerId).single()
+    await supabase.from('players').update({ balance: buyer.balance - price }).eq('id', sellTarget)
+    await supabase.from('players').update({ balance: (seller?.balance || 0) + price }).eq('id', playerId)
+    await supabase.from('player_properties').update({ player_id: sellTarget }).eq('id', pp.id)
+    await supabase.from('transactions').insert({
+      room_id: roomId, from_player_id: sellTarget, to_player_id: playerId, amount: price, type: 'transfer',
+      description: `Venda de ${property.name} para jogador`
+    })
+    setSelling(false)
+    navigate(`/jogo/${roomId}?playerId=${playerId}`)
+  }
 }
