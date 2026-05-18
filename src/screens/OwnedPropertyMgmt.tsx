@@ -64,17 +64,16 @@ export default function OwnedPropertyMgmt() {
       <div style={{
         background: property.color,
         margin: '-16px -16px 0',
-        padding: '16px 16px 24px',
-        borderRadius: '16px 16px 24px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
+        padding: '24px 16px 24px',
+        borderRadius: 16,
+        textAlign: 'left',
+        position: 'relative',
       }}>
-        <button className="header-back" onClick={() => navigate(`/jogo/${roomId}?playerId=${playerId}`)}
-          style={{ color: 'white', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8, width: 36, height: 36, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          ←
+        <button onClick={() => navigate(`/jogo/${roomId}?playerId=${playerId}`)}
+          style={{ position: 'absolute', top: 12, right: 12, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+          ✕
         </button>
-        <h1 style={{ color: 'white', margin: 0 }}>{property.name}</h1>
+        <h1 style={{ color: 'white', margin: 0, fontSize: 20 }}>{property.name}</h1>
       </div>
 
       <div className="card">
