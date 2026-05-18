@@ -28,7 +28,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="screen" style={{ alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
+    <div className="screen" style={{ alignItems: 'center', justifyContent: 'center', gap: 72, textAlign: 'center' }}>
       <img src="/udimob_logo.svg" alt="UdIMob" style={{ width: 240 }} />
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div className="input-group" style={{ width: '100%' }}>
