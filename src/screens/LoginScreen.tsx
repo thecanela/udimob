@@ -28,11 +28,8 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="screen" style={{ alignItems: 'center', gap: 0, textAlign: 'center' }}>
-      <div style={{ paddingTop: 40 }}>
-        <img src="/udimob_logo.svg" alt="UdIMob" style={{ width: 240 }} />
-      </div>
-      <div style={{ flex: 1 }} />
+    <div className="screen" style={{ alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
+      <img src="/udimob_logo.svg" alt="UdIMob" style={{ width: 240 }} />
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 24 }}>
         <div className="input-group" style={{ width: '100%' }}>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="Digite seu nome" style={{ textAlign: 'center' }} />
