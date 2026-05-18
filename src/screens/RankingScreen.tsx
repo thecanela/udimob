@@ -68,9 +68,6 @@ export default function RankingScreen() {
       }}>
         🆕 Novo Jogo
       </button>
-      <button className="btn btn-secondary" onClick={() => navigate('/')}>
-        Voltar ao Início
-      </button>
     </div>
   )
 }
